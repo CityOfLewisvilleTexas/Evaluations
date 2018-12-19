@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+
+    <title>Evaluation Form</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png">
+    <link rel="manifest" href="../icons/site.webmanifest">
+    <link rel="mask-icon" href="../icons/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="../icons/favicon.ico">
+    <meta name="msapplication-TileColor" content="#603cba">
+    <meta name="msapplication-config" content="../icons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Materialize CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">    
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!--Fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <!--Materialize JS-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <!--VueJS-->
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    
+    <!-- axios -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <!--Security-->
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="../oauth/colsecurity.js""></script>
+
+    <style>
+        [v-cloak] {display: none}
+        body{overflow:hidden;}
+        iframe {width:100%; height: calc(100vh - 250px); border:none;}
+        .main{height: calc(100vh - 105px);}
+        table td{padding-top: 8px; padding-bottom: 8px;}
+        .collapsible-body{padding-top:10px; max-height:calc(100vh - 300px); overflow-y:scroll;}
+    </style>
+</head>
+
+<body class="white">
+    
+    <div id="app" v-cloak>
+        <div class="navbar">
+            <nav>
+                <div class="nav-wrapper deep-purple white-text">
+                    <a class="brand-logo">&nbsp Evaluation Form</a>
+                    <ul id="nav-mobile" class="right hide-on-med-and-down">
+                        <li><a v-bind:href="urlPrint.replace('{{recordNumber}}',evalId)" target="_blank"><i class="material-icons left">print</i>Print</a></li>
+                        <li><a href=""></a></li>
+                    </ul>
+                </div>
+            </nav>       
+        </div> <!--end navbar-->
+       
+        <!--Username-->
+        <div class="row">
+            <div class="col s12">
+                {{(username.length == 0 ? "Getting username..." : username)}}
+            </div>
+        </div>
+        
+
+        <div class="main" style="margin-left:1em; margin-right:1em;">     
+            
+            <div class="row">                
+                
+                <!--Left Panel-->
+                <div class="col m4 s12">
+
+                    <h5>Other Forms</h5>
+                    <ul class="collapsible">
+
+                        <!--Employee-Input Form-->
+                        <li>
+                            <div class="collapsible-header"><i class="material-icons">person</i>Employee-Input Form 
+                                <span v-show="employeeInput[0].Is_Complete==true" class="new badge" data-badge-caption="Complete"></span>
+                                <span v-show="employeeInput[0].Is_Complete==false" class="new badge red" data-badge-caption="Not Complete"></span>
+                            </div>
+                            <div class="collapsible-body grey lighten-4">
+                                <p>This is the employee-input form for this employee for this evaluation.</p>
+                                <table>
+                                    <tr>
+                                        <td><b>Eval Period: Start Date</b></td>
+                                        <td>{{employeeInput[0].Evaluation_Period_Start_Date}}</td>
+                                        <td></td>
+                                    </tr>
+                                    
+                                    <tr>
+                                        <td><b>Eval Period: End Date:</b></td>
+                                        <td>{{employeeInput[0].Evaluation_Period_End_Date}}</td>
+                                        <td></td>
+                                    </tr>
+                                    
+                                    <tr>
+                                        <td><b>Complete?</b></td>
+                                        <td class="valign-wrapper">{{(employeeInput[0].Is_Complete == true ? "YES" : "NO")}}</td>
+                                        <td>
+                                            <i class="material-icons green-text right-align" v-show="employeeInput[0].Is_Complete==true">check</i>
+                                            <i class="material-icons red-text right-align" v-show="employeeInput[0].Is_Complete==false">clear</i>
+                                        </td>                                       
+                                    </tr>
+                                </table>
+                                <br><br><br>
+                                <table>
+                                    <tr><td colspan="2"><b>Question: Accomplishments in the Past Review Period:</b></td></tr>
+                                    <tr><td colspan="2">{{employeeInput[0].Question_Accomplishments_Past_Review_Period}}</td></tr>
+            
+                                    <tr><td colspan="2"><b>Question: Strengths and Opportunities?</b></td></tr>
+                                    <tr><td colspan="2">{{employeeInput[0].Question_Strengths_Opportunities}}</td></tr>
+            
+                                    <tr><td colspan="2"><b>Question: Suggestions or Comments?</b></td></tr>
+                                    <tr><td colspan="2">{{employeeInput[0].Question_Suggestions_Or_Comments}}</td></tr>
+            
+                                    <tr><td colspan="2"><b>Question: What can the City do to Help You?</b></td></tr>
+                                    <tr><td colspan="2">{{employeeInput[0].Question_What_Can_City_Do}}</td></tr>
+            
+                                    <tr><td colspan="2"><b>Question: Work Challenges</b></td></tr>
+                                    <tr><td colspan="2">{{employeeInput[0].Question_Work_Challenges}}</td></tr>
+
+                                    <tr><td colspan="2"><b>Question: Professional Goals</b></td></tr>
+                                    <tr><td colspan="2">{{employeeInput[0].Question_Workplan_Status}}</td></tr>
+                                </table>
+                            </div>
+                        </li>
+
+                        <!--Supervisor Logs-->
+                        <li>
+                            <div class="collapsible-header"><i class="material-icons">wrap_text</i>Supervisor Logs <span class="new badge" data-badge-caption="entries">{{supervisorLogs.length}}</span></div>
+                            <div class="collapsible-body grey lighten-4">
+                                <p>The following are the supervisor-log entries for this employee between the start and end of this review period.</p>
+
+                                <div v-show="supervisorLogs.length == 0">No supervisor logs found</div>
+
+                                <div v-for="_log in supervisorLogs">
+                                    <table class="z-depth-1 white" style="font-size:0.9em;">
+                                        <tr>
+                                            <td><b>Date:</b></td><td>{{_log.Incident_Date}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Type:</b></td><td>{{_log.Log_Entry_Type}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Narrative:</b></td><td>{{_log.Log_Entry_Text}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Last Edit:</b></td><td>{{_log.LastEditUser}} at {{_log.LastEditDate}}</td>
+                                        </tr>
+                                    </table>
+                                    <br><br>
+                                </div>
+
+                            </div>
+                        </li>
+                    </ul>         
+                    
+                </div>
+
+                <!--Right Panel-->
+                <!--Evaluation-->
+                <div class="col m8 s12">
+                    <h5>{{ ( typeof employeeInput[0].EmployeeName == 'undefined' ? '...' : 'Evaluation for ' + employeeInput[0].EmployeeName ) }}</h5>
+                    <iframe class="z-depth-3" :src="url_Eval"></iframe>
+                    <div class="row">
+                        <div class="col s12 m4"></div>
+                        <div class="col s12 m8">
+                            <a class="waves-effect waves-light btn modal-trigger" href="#modalResetApprovals">Return to Supervisor</a>
+                            <a class="waves-effect waves-light btn modal-trigger" href="#modalResetApprovals">Return to Director</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div> <!--end row-->
+
+            
+
+        </div> <!--end container-->
+
+
+        <!--Modal for resetting approvals-->
+        <div id="modalResetApprovals" class="modal">
+            <div class="modal-content">
+                <h4>Return this Evaluation</h4>
+                <p>Enter below the reason for returning this evaluation. This will uncheck (reset) all workflow approvals.</p>
+                <div class="input-field col s12">
+                    <textarea id="textarea1" class="materialize-textarea" v-model="resetApprovals_Why"></textarea>
+                    <label for="textarea1">Reason for returning evaluation</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat" v-on:click="resetApprovals(resetApprovals_Why)">Send Back and Send Email</a>
+            </div>
+        </div>
+    </div>  <!--end app-->
+
+    <!--=======================================================-->
+    <!--Javascript-->
+    <!--=======================================================-->
+    <script>
+        "use strict"
+
+        var app = new Vue({
+            el: "#app",
+            data: {                
+                username: "",
+                evalId: "",
+                employeeInputId: "",
+                employeeInput: [{}],
+                resetApprovals_Why: '',
+                urlTemplate_Eval: "http://apps.cityoflewisville.com/PSOFIA_V2/formentry/index.html?formID=87&recordNumber={{recordNumber}}",
+                url_Eval: "",
+                urlTemplate_SA: "https://forms.cityoflewisville.com/formentry/index.html?formID=86&recordNumber={{recordNumber}}",
+                url_SA: "",
+                urlPrint: 'http://ax1vsql8/ReportServer/Pages/ReportViewer.aspx?/PerformanceEvaluations/Evaluation_PrintableForms&rs:Command=Render&RecordNumber={{recordNumber}}',
+                supervisorLogs: [],
+                noRecordsFound: false,
+                recordsAreLoading: false
+            },
+            methods: {
+
+                init: function(){
+                    var _this = this
+                    
+                    _this.setUI()
+
+                    //Oauth
+                    setTimeout(function(){
+                        _this.username = localStorage.colEmail
+                    },1500)
+                    
+                    //Evaluation Id
+                    _this.evalId = _this.getUrlParameter("recordNumber")
+
+                    //Evaluation iframe src
+                    _this.url_Eval = _this.urlTemplate_Eval.replace("{{recordNumber}}",_this.evalId)
+                    
+                    //Employee-Input data
+                    _this.getEmployeeInputId(_this.evalId,function(){
+                        _this.getEmployeeInput(_this.employeeInputId, function(){
+                            _this.getSupervisorLogsForPastYear(_this.evalId)
+                        })
+                    })
+                },
+                
+                setUI: function(){
+                    //Collapsibles
+                    var _collapsibles = document.querySelectorAll('.collapsible');
+                    var _collapsiblesI = M.Collapsible.init(_collapsibles);
+
+                    //Modals
+                    var _modals = document.querySelectorAll('.modal');
+                    var _modalsI = M.Modal.init(_modals);
+                },
+
+                getUrlParameter: function(_name){
+                    return decodeURIComponent((new RegExp('[?|&|]' + _name.toLowerCase() + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search.toLowerCase())||[,""])[1].replace(/\+/g, '%20'))||null;
+                },
+
+                getEmployeeInputId: function(_evalId, _callback){
+                    var _this = this
+
+                    //Reset variables
+                    _this.employeeInputId = ""
+                    _this.recordsAreLoading = true
+                    _this.noRecordsFound = false
+                    
+                    axios.post('https://query.cityoflewisville.com/v2', {
+                        webservice: "Evals_SelfAssessments_GetId",
+                        auth_token: localStorage.colAuthToken,
+                        evalid: _evalId
+                    })
+                    .then(function(_results){
+                        console.group("getEmployeeInputId")  
+                        console.log(_results.data)
+                        console.groupEnd()
+                        if (typeof _results.data[0][0] != 'undefined'){
+                            _this.employeeInputId = _results.data[0][0].RecordNumber
+
+                            //Execute callback
+                            _callback()
+                        }else{
+                            _this.employeeInputId = ""
+                            _this.noRecordsFound = true
+                            _this.recordsAreLoading = false
+                        }
+                        _this.recordsAreLoading = false
+                    })
+                    .catch(function(error){ 
+                        console.error(error)
+                        _this.employeeInputId = ""
+                        _this.noRecordsFound = true
+                        _this.recordsAreLoading = false
+                    })
+                },
+
+                getEmployeeInput: function(_employeeInputId, _callback){
+                    var _this = this
+
+                    axios.post('https://query.cityoflewisville.com/v2', {
+                        webservice: "Evals_EmployeeInputForm_Get_ById",
+                        auth_token: localStorage.colAuthToken,
+                        recordnumber: _employeeInputId
+                    })
+                    .then(function(_results){  
+                        console.group("getEmployeeInput")  
+                        console.log(_results.data)
+                        console.groupEnd()
+
+                        if (typeof _results.data[0][0] != 'undefined'){
+                            _this.employeeInput[0] = _results.data[0][0] //first record only
+
+                            //Execute callback
+                            _callback()
+                        }else{
+                            _this.employeeInputId = ""
+                            _this.noRecordsFound = true
+                            _this.recordsAreLoading = false
+                        }
+                        _this.recordsAreLoading = false
+                    })
+                    .catch(function(error){ 
+                        console.error(error)
+                        _this.employeeInputId = ""
+                        _this.noRecordsFound = true
+                        _this.recordsAreLoading = false
+                    })
+                },
+                getSupervisorLogsForPastYear: function(_evalId){
+                    var _this = this
+
+                    axios.post('https://query.cityoflewisville.com/v2', {
+                        webservice: "Evals_SupervisorLogs_GetByEmployeeId",
+                        auth_token: localStorage.colAuthToken,
+                        evalid: _evalId
+                    })
+                    .then(function(_results){  
+                        console.group("getSupervisorLogsForPastYear")  
+                        console.log(_results.data)
+                        console.groupEnd()
+
+                        if (typeof _results.data[0][0] != 'undefined'){
+                            _this.supervisorLogs = _results.data[0]
+                        }else{
+                            _this.employeeInputId = ""
+                            _this.noRecordsFound = true
+                            _this.recordsAreLoading = false
+                        }
+                        _this.recordsAreLoading = false
+                    })
+                    .catch(function(error){ 
+                        console.error(error)
+                        _this.employeeInputId = ""
+                        _this.noRecordsFound = true
+                        _this.recordsAreLoading = false
+                    })
+                },
+                resetApprovals: function(_why){
+                    var _this = this
+                    var _evalId = _this.evalId
+                    
+                    axios.post('https://query.cityoflewisville.com/v2', {
+                        webservice: "Evals_ResetApprovals",
+                        auth_token: localStorage.colAuthToken,
+                        recordnumber: _evalId,
+                        useremail: _this.username,
+                        why: _why
+                    })
+                    .then(function(_results){
+                        if (typeof _results.data[0][0] != 'undefined'){
+                           window.location.reload()  
+                        }
+                    })
+                    .catch(function(error){ 
+                        console.error(error)
+                    })
+                }
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function(){
+            app.init()
+        })
+        
+    </script>
+</body>
+</html> 

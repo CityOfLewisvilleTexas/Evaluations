@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+
+    <title>Eval Home</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+    <link rel="manifest" href="icons/site.webmanifest">
+    <link rel="mask-icon" href="icons/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="icons/favicon.ico">
+    <meta name="msapplication-TileColor" content="#603cba">
+    <meta name="msapplication-config" content="icons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Materialize CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">    
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!--Fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <!--Materialize JS-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    
+    <!--VueJS-->
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    
+    <!-- axios -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <!--Security-->
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="oauth/colsecurity.js""></script>
+
+    <style>
+        [v-cloak] {display: none}
+        *{font-family:Roboto;}
+        select{display:block; width: 200px;}
+        .container{max-width: 1100px; padding:1.5em; padding-bottom:3em; margin-bottom:20em !important; box-shadow: 0 0 0 0.75pt #d1d1d1, 0 0 3pt 0.75pt #ccc;}        
+        .collection-header >h5 {margin-top:10px; margin-bottom:2px; margin-left:5px;}
+        .collection-item {padding-top:2px !important;}
+        .collection-item > h6 {font-weight: bold; font-size: 1.4em;}
+        .collection-item > a {margin-left:-13px;}
+        .record-container { font-size:0.9em; margin-left:0.5em !important; }
+        .record-container .row { border-bottom: solid 1px gainsboro;}
+    </style>
+</head>
+
+<body style="background-color:whitesmoke;">
+    
+    <div id="app" v-cloak>
+        <div class="navbar">
+            <nav>
+                <div class="nav-wrapper deep-purple white-text">
+                    <a class="brand-logo">&nbsp Performance Evaluations</a>
+                </div>
+            </nav>       
+        </div> <!--end navbar-->
+       
+        <!--Username-->
+        <div class="row">
+            <div class="col s12">
+                {{(username.length == 0 ? "Getting username..." : username)}}
+            </div>
+        </div>
+        
+
+        <div class="container white">     
+            <!--Welcome-->
+            <div class="row">
+                <div class="col s12">
+                    <p>
+                        <div class="row valign-wrapper">
+                            <div class="col s8 right-align">
+                                Generate review for employee
+                                <br>
+                                <small>Only use this option when the system has not sent the automated email</small>
+                            </div>
+                            <div class="col s3 right-align">
+                                <select v-model="selectedSubordinate">
+                                    <option disabled value="">Select employee</option>
+                                    <option v-for="employee in subordinates" v-bind:value="employee.EmployeeEmail">
+                                        {{ employee.EmployeeName }}
+                                    </option>
+                                </select>                                    
+                            </div>
+                            <div class="col s1">
+                                <button :disabled="(subordinates.length == 0)" v-on:click="kickOffEvalProcess(selectedSubordinate)">Go</button>
+                            </div>
+                        </div>
+                        <br>
+                        <ul class="collection white">
+                           
+                            <li class="collection-item">
+                                <h6>Employee-Input Forms</h6>
+                                Employees will receive an email 30 days before their evaluation due-date with a link to their input-form.
+                                <br>
+                                <i>New</i> Employee Input Forms can only be started once the employee receives the email with the link.
+                                <br>
+                                <a class="waves-effect waves-teal btn-flat blue-text" @click="formType='employee_input'; getRecords('employee_input')">View All</a>
+                                <br>
+
+                                <!--Records-->
+                                <div class="row record-container" v-show="records.length > 0 && formType == 'employee_input'">
+                                    
+                                    <div class="col s12" v-for="employee in employees">
+                                        <h6>{{employee.name}}</h6>
+                                        <div class="row black-text" style="margin-bottom: 5px;">
+                                            <div class="col s4">Review Period</div>
+                                            <div class="col s4">Status</div>
+                                            <div class="col s4">Link</div>
+                                        </div>
+                                        <div class="row grey-text" style="margin-top:5px; margin-bottom: 5px;" v-for="record in recordsPerEmployee(employee.id)">
+                                            <div class="col s4">{{formatDate(record.Evaluation_Period_Start_Date)}} to {{formatDate(record.Evaluation_Period_End_Date)}}</div>                                            
+                                            <div class="col s4">
+                                                <span v-show="record.Is_Complete==true" class="new badge grey" style="float:left; margin-left:0;" data-badge-caption="Complete"></span>
+                                                <span v-show="record.Is_Complete==false" class="new badge green" style="float:left; margin-left:0;" data-badge-caption="Pending"></span>
+                                            </div>
+                                            <div class="col s4"><a :href="record.link" target="_blank">Open Form</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="collection-item">
+                                <h6>Evaluations</h6> 
+                                Supervisors will receive an email 30 days prior to an employee's evaluation due-date with a link to the evaluation form.
+                                <br>
+                                <i>New</i> evaluations can only be started once the supervisor receives the email with the link.
+                                <br>
+                                <a class="waves-effect waves-teal btn-flat blue-text" @click="formType='evaluations'; getRecords('evaluations')">View All</a>
+                                <br>
+
+                                <!--Records-->
+                                <div class="row record-container" v-show="records.length > 0 && formType == 'evaluations'">
+                                    <div class="col s12" v-for="employee in employees">
+                                        <h6>{{employee.name}}</h6>
+                                        <div class="row black-text" style="margin-bottom: 5px;">
+                                            <div class="col s3">Review Period</div>
+                                            <div class="col s2">Supervisor</div>
+                                            <div class="col s2">Department</div>
+                                            <div class="col s2">HR</div>
+                                            <div class="col s3"><Link></Link></div>
+                                        </div>
+                                        <div class="row grey-text" style="margin-bottom: 5px;" v-for="record in recordsPerEmployee(employee.id)">
+                                            <div class="col s3">{{formatDate(record.Evaluation_Period_Start_Date)}} to {{formatDate(record.Evaluation_Period_End_Date)}}</div>
+                                            <div class="col s2">
+                                                <span v-show="record.Is_Complete_Supervisor==true" class="new badge grey" style="float:left; margin-left:0;" data-badge-caption="Complete"></span>
+                                                <span v-show="record.Is_Complete_Supervisor==false" class="new badge green" style="float:left; margin-left:0;" data-badge-caption="Pending"></span>
+                                            </div>
+                                            <div class="col s2">
+                                                <span v-show="record.Is_Complete_Department==true" class="new badge grey" style="float:left; margin-left:0;" data-badge-caption="Complete"></span>
+                                                <span v-show="record.Is_Complete_Department==false" class="new badge green" style="float:left; margin-left:0;" data-badge-caption="Pending"></span>
+                                            </div>
+                                            <div class="col s2">
+                                                <span v-show="record.Is_Complete_HR==true" class="new badge grey" style="float:left; margin-left:0;" data-badge-caption="Complete"></span>
+                                                <span v-show="record.Is_Complete_HR==false" class="new badge green" style="float:left; margin-left:0;" data-badge-caption="Pending"></span>
+                                            </div>
+                                            <div class="col s3">
+                                                <a v-show="record.isSelf==0" :href="record.link" target="_blank">Open Form</a>
+                                                <a v-show="record.isSelf!=0" :href="record.viewOnlyLink" target="_blank">Open Form</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+
+                            
+                            <li class="collection-item">
+                                <h6>Supervisor Logs</h6> 
+                                Supervisors should use this area to log counseling and oral reprimands.
+                                <br>
+                                <a class="waves-effect waves-teal btn-flat blue-text" v-show="this.isSupervisorFlag===1" href="http://apps.cityoflewisville.com/PSOFIA_v2/formentry/index.html?formID=88" target="_blank">New</a>
+                                &nbsp <span class="grey-text">|</span> &nbsp
+                                <a class="waves-effect waves-teal btn-flat blue-text" @click="formType='supervisor_logs'; getRecords('supervisor_logs')">View All</a>
+                                <br>
+
+                                <!--Records-->
+                                <div class="row record-container" v-show="records.length > 0 && formType == 'supervisor_logs'">
+                                    <div class="col s12" v-for="employee in employees">
+                                        <h6>{{employee.name}}</h6>
+                                        <div class="row black-text">
+                                            <div class="col s2">Date</div>
+                                            <div class="col s3">Type</div>
+											<div class="col s5">Narrative</div>
+                                            <div class="col s2"></div>
+                                        </div>
+                                        <div class="row grey-text" v-for="record in recordsPerEmployee(employee.id)">
+                                            <div class="col s2">{{formatDate(record.Incident_Date)}}</div>
+                                            <div class="col s3">{{record.Log_Entry_Type}}</div>
+											<div class="col s5">{{record.Log_Entry_Text}}</div>											
+                                            <div class="col s2" v-show="record.isSelf==0"><a :href="record.link" target="_blank">Open Form</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </p>
+                    <!--To do later-->
+                    <!--
+                    <div>
+                        <a class="waves-effect waves-light btn deep-purple white-text" id="Peer" v-on:click="LaunchURL()" >Submit Peer Recognition</a>
+                    </div>
+                    -->
+                </div>
+            </div>
+
+            <!--Records Loading-->
+            <div class="row" v-show="recordsAreLoading == true">
+                <div class="col s12 center-align">
+                    Loading...
+                </div>
+            </div>
+
+            <!--No records found-->
+            <div class="row" v-show="noRecordsFound == true">
+                <div class="col s12 center-align">
+                    No {{formTypePretty}} Found
+                </div>
+            </div>
+          
+            
+        </div> <!--end container-->
+
+    </div>  <!--end app-->
+
+    <!--=======================================================-->
+    <!--Javascript-->
+    <!--=======================================================-->
+    <script>
+        "use strict"
+
+        var app = new Vue({
+            el: "#app",
+            data: {
+                records: [],
+                subordinates: [],
+                recordsAreLoading: false,
+                noRecordsFound: false,
+                noSubordinatesFound: false,
+                selectedSubordinate: '',
+                formType: "",
+                username: "",
+                isSupervisorFlag: 0
+            },
+            methods: {
+                init: function(){
+                    var _this = this
+                    setTimeout(function(){
+                        _this.username = localStorage.colEmail
+                        _this.getListOfSubordinates()
+                    },1500)
+                },
+                getListOfSubordinates: function(){
+                    var _this = this
+
+                    axios.post('https://query.cityoflewisville.com/v2', {
+                        webservice: "Evals_GetListOfSubordinates",
+                        auth_token: localStorage.colAuthToken,
+                        employee_email: localStorage.colEmail,
+                        trim: true
+                    })
+                    .then(function(_results){  
+                        if (typeof _results.data.Emp != 'undefined'){
+                            _this.subordinates = _results.data.Emp
+                            console.log(_this.subordinates)
+                            if (_this.subordinates.length == 0){
+                                _this.noSubordinatesFound = true
+                            }
+                        }else{
+                            _this.subordinates.length = 0
+                            _this.noEmployeesFound = true
+                        }
+
+                        if(_results.data.SupvFlag[0].isSupervisorFlag == 1){
+                            //if Supervisor then show the Supervisor Logs New link
+                            _this.isSupervisorFlag = 1
+                        }
+
+                    })
+                    .catch(function(error){ 
+                        console.error(error)
+                        _this.subordinates.length = 0
+                        _this.noSubordinatesFound = true
+                    })
+                },                
+                getRecords: function(_formType){
+                    var _this = this
+
+                    //Reset variables
+                    _this.records.length = 0
+                    _this.recordsAreLoading = true
+                    _this.noRecordsFound = false
+
+                    axios.post('https://query.cityoflewisville.com/v2', {
+                        webservice: "Evals_ByType_AuthorizedOnly_GetAll",
+                        auth_token: localStorage.colAuthToken,
+                        formtype: _formType,
+                        employee_email: localStorage.colEmail
+                    })
+                    .then(function(_results){  
+                        if (typeof _results.data[0][0] != 'undefined'){
+                            _this.records = _results.data[0]
+                            console.log(_this.employees)
+                            if (_this.records.length == 0){
+                                _this.noRecordsFound = true
+                            }
+                        }else{
+                            _this.records.length = 0
+                            _this.noRecordsFound = true
+                            _this.recordsAreLoading = false
+                        }
+                        _this.recordsAreLoading = false
+                    })
+                    .catch(function(error){ 
+                        console.error(error)
+                        _this.records.length = 0
+                        _this.noRecordsFound = true
+                        _this.recordsAreLoading = false
+                    })
+                },
+
+                kickOffEvalProcess: function(_employeeEmail){
+                    var _this = this
+
+                    axios.post('https://query.cityoflewisville.com/v2', {
+                        webservice: "Evals_ForceEvalKickOff",
+                        auth_token: localStorage.colAuthToken,
+                        employeeemail: _employeeEmail
+                    })
+                    .then(function(_results){  
+                        if (typeof _results.data[0][0] != 'undefined'){
+                            M.toast({html:"You should receive an email."})
+                        }
+                    })
+                    .catch(function(error){ 
+                        console.error(error)
+                        M.toast({html:"Error"})
+                    })
+                },
+
+                formatDate: function(_sqlFormattedDateTime){
+                    var _this = this
+                    if (typeof _sqlFormattedDateTime != 'undefined'){
+                        return _sqlFormattedDateTime.substr(0,10)
+                    }else{
+                        return ''
+                    }
+                },
+                recordsPerEmployee: function(_employeeId){
+                    var _this = this
+                    var _records = _this.records.filter(function(r){
+                        return r.Employee_ID == _employeeId
+                    })
+                    return _records
+                } ,
+                LaunchURL: function(){
+                    window.open("http://apps.cityoflewisville.com/PSOFIA_v2/formentry/index.html?formID=92",'_blank')
+                }                       
+            },
+            computed:{
+                formTypePretty: function(){
+                    var _this = this
+                    var _formTypePretty = 'Unknown'
+                    if (_this.formType == 'accomplishments'){ _formTypePretty = 'Accomplishments' }
+                    if (_this.formType == 'evaluations'){ _formTypePretty = 'Evaluations' }
+                    if (_this.formType == 'employee_input'){ _formTypePretty = 'Employee-Input Forms' }
+                    if (_this.formType == 'supervisor_logs'){ _formTypePretty = 'Supervisor Logs' }
+                    return _formTypePretty
+                },
+                employees: function(){                    
+                    var _this = this
+                    var _employees = _this.records.map(function(_obj) { 
+                        return _obj.Employee_ID
+                    })
+                    _employees = _employees.filter(function(v,i) { 
+                        return _employees.indexOf(v) == i; 
+                    })
+                    var _employees2 = _employees.map(function(r){
+                        var _name = _this.records.filter(function(n){
+                            return n.Employee_ID == r
+                        })[0].EmployeeName
+                        return {id: r, name: _name}
+                    })
+                    return _employees2
+                }
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function(){
+            app.init()
+        })
+        
+    </script>
+</body>
+</html> 
