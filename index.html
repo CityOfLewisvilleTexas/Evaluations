@@ -47,6 +47,7 @@
         .collection-item > a {margin-left:-13px;}
         .record-container { font-size:0.9em; margin-left:0.5em !important; }
         .record-container .row { border-bottom: solid 1px gainsboro;}
+        #collapsible_container { margin-left: -12px;}
     </style>
 </head>
 
@@ -101,28 +102,30 @@
                                 <br>
                                 <i>New</i> Employee Input Forms can only be started once the employee receives the email with the link.
                                 <br>
-                                <a class="waves-effect waves-teal btn-flat blue-text" @click="formType='employee_input'; getRecords('employee_input')">View All</a>
+                                <a class="waves-effect waves-purple btn-flat deep-purple-text" @click="formType='employee_input'; getRecords('employee_input');">View All</a>
                                 <br>
-
                                 <!--Records-->
-                                <div class="row record-container" v-show="records.length > 0 && formType == 'employee_input'">
-                                    
-                                    <div class="col s12" v-for="employee in employees">
-                                        <h6>{{employee.name}}</h6>
-                                        <div class="row black-text" style="margin-bottom: 5px;">
-                                            <div class="col s4">Review Period</div>
-                                            <div class="col s4">Status</div>
-                                            <div class="col s4">Link</div>
-                                        </div>
-                                        <div class="row grey-text" style="margin-top:5px; margin-bottom: 5px;" v-for="record in recordsPerEmployee(employee.id)">
-                                            <div class="col s4">{{formatDate(record.Evaluation_Period_Start_Date)}} to {{formatDate(record.Evaluation_Period_End_Date)}}</div>                                            
-                                            <div class="col s4">
-                                                <span v-show="record.Is_Complete==true" class="new badge grey" style="float:left; margin-left:0;" data-badge-caption="Complete"></span>
-                                                <span v-show="record.Is_Complete==false" class="new badge green" style="float:left; margin-left:0;" data-badge-caption="Pending"></span>
-                                            </div>
-                                            <div class="col s4"><a :href="record.link" target="_blank">Open Form</a></div>
-                                        </div>
-                                    </div>
+                                <div class="col s12" id="collapsible_container" v-show="records.length > 0 &&  formType == 'employee_input'">
+                                        <ul class="collapsible">
+                                                <li v-for="(employee, i) in employees" :id="employee.name.split(' ')[0].toLowerCase() + '_' + i" :key="i" >
+                                                  <div class="collapsible-header"> {{ employee.name }}<i class="small material-icons">chevron_right</i></div>
+                                                  <div class="collapsible-body">
+                                                        <div class="row black-text" style="margin-bottom: 5px;">
+                                                                <div class="col s4">Review Period</div>
+                                                                <div class="col s4">Status</div>
+                                                                <div class="col s4">Link</div>
+                                                            </div>
+                                                        <div class="row grey-text" style="margin-top:5px; margin-bottom: 5px;" v-for="record in recordsPerEmployee(employee.id)">
+                                                            <div class="col s4">{{formatDate(record.Evaluation_Period_Start_Date)}} to {{formatDate(record.Evaluation_Period_End_Date)}}</div>                                            
+                                                            <div class="col s4">
+                                                                <span v-show="record.Is_Complete==true" class="new badge grey" style="float:left; margin-left:0;" data-badge-caption="Complete"></span>
+                                                                <span v-show="record.Is_Complete==false" class="new badge green" style="float:left; margin-left:0;" data-badge-caption="Pending"></span>
+                                                            </div>
+                                                            <div class="col s4"><a :href="record.link" target="_blank">Open Form</a></div>
+                                                        </div>
+                                                  </div>
+                                                </li>
+                                              </ul>
                                 </div>
                             </li>
 
@@ -132,40 +135,43 @@
                                 <br>
                                 <i>New</i> evaluations can only be started once the supervisor receives the email with the link.
                                 <br>
-                                <a class="waves-effect waves-teal btn-flat blue-text" @click="formType='evaluations'; getRecords('evaluations')">View All</a>
+                                <a class="waves-effect waves-purple btn-flat deep-purple-text" @click="formType='evaluations'; getRecords('evaluations')">View All</a>
                                 <br>
 
                                 <!--Records-->
-                                <div class="row record-container" v-show="records.length > 0 && formType == 'evaluations'">
-                                    <div class="col s12" v-for="employee in employees">
-                                        <h6>{{employee.name}}</h6>
-                                        <div class="row black-text" style="margin-bottom: 5px;">
-                                            <div class="col s3">Review Period</div>
-                                            <div class="col s2">Supervisor</div>
-                                            <div class="col s2">Department</div>
-                                            <div class="col s2">HR</div>
-                                            <div class="col s3"><Link></Link></div>
-                                        </div>
-                                        <div class="row grey-text" style="margin-bottom: 5px;" v-for="record in recordsPerEmployee(employee.id)">
-                                            <div class="col s3">{{formatDate(record.Evaluation_Period_Start_Date)}} to {{formatDate(record.Evaluation_Period_End_Date)}}</div>
-                                            <div class="col s2">
-                                                <span v-show="record.Is_Complete_Supervisor==true" class="new badge grey" style="float:left; margin-left:0;" data-badge-caption="Complete"></span>
-                                                <span v-show="record.Is_Complete_Supervisor==false" class="new badge green" style="float:left; margin-left:0;" data-badge-caption="Pending"></span>
-                                            </div>
-                                            <div class="col s2">
-                                                <span v-show="record.Is_Complete_Department==true" class="new badge grey" style="float:left; margin-left:0;" data-badge-caption="Complete"></span>
-                                                <span v-show="record.Is_Complete_Department==false" class="new badge green" style="float:left; margin-left:0;" data-badge-caption="Pending"></span>
-                                            </div>
-                                            <div class="col s2">
-                                                <span v-show="record.Is_Complete_HR==true" class="new badge grey" style="float:left; margin-left:0;" data-badge-caption="Complete"></span>
-                                                <span v-show="record.Is_Complete_HR==false" class="new badge green" style="float:left; margin-left:0;" data-badge-caption="Pending"></span>
-                                            </div>
-                                            <div class="col s3">
-                                                <a v-show="record.isSelf==0" :href="record.link" target="_blank">Open Form</a>
-                                                <a v-show="record.isSelf!=0" :href="record.viewOnlyLink" target="_blank">Open Form</a>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="col s12" id="collapsible_container" v-show="records.length > 0 && formType == 'evaluations'">
+                                        <ul class="collapsible">
+                                                <li v-for="(employee, i) in employees" :id="employee.name.split(' ')[0].toLowerCase() + '_' + i" :key="i" >
+                                                  <div class="collapsible-header"> {{ employee.name }}<i class="small material-icons">chevron_right</i></div>
+                                                  <div class="collapsible-body">
+                                                        <div class="row black-text" style="margin-bottom: 5px;">
+                                                                <div class="col s3">Review Period</div>
+                                                                <div class="col s2">Supervisor</div>
+                                                                <div class="col s2">Department</div>
+                                                                <div class="col s2">HR</div>
+                                                                <div class="col s3"><Link></Link></div>
+                                                            </div>
+                                                            <div class="row grey-text" style="margin-bottom: 5px;" v-for="record in recordsPerEmployee(employee.id)">
+                                                                <div class="col s3">{{formatDate(record.Evaluation_Period_Start_Date)}} to {{formatDate(record.Evaluation_Period_End_Date)}}</div>
+                                                                <div class="col s2">
+                                                                    <span v-show="record.Is_Complete_Supervisor==true" class="new badge grey" style="float:left; margin-left:0;" data-badge-caption="Complete"></span>
+                                                                    <span v-show="record.Is_Complete_Supervisor==false" class="new badge green" style="float:left; margin-left:0;" data-badge-caption="Pending"></span>
+                                                                </div>
+                                                                <div class="col s2">
+                                                                    <span v-show="record.Is_Complete_Department==true" class="new badge grey" style="float:left; margin-left:0;" data-badge-caption="Complete"></span>
+                                                                    <span v-show="record.Is_Complete_Department==false" class="new badge green" style="float:left; margin-left:0;" data-badge-caption="Pending"></span>
+                                                                </div>
+                                                                <div class="col s2">
+                                                                    <span v-show="record.Is_Complete_HR==true" class="new badge grey" style="float:left; margin-left:0;" data-badge-caption="Complete"></span>
+                                                                    <span v-show="record.Is_Complete_HR==false" class="new badge green" style="float:left; margin-left:0;" data-badge-caption="Pending"></span>
+                                                                </div>
+                                                                <div class="col s3">
+                                                                    <a v-show="record.isSelf==0" :href="record.link" target="_blank">Open Form</a>
+                                                                    <a v-show="record.isSelf!=0" :href="record.viewOnlyLink" target="_blank">Open Form</a>
+                                                                </div>
+                                                  </div>
+                                                </li>
+                                              </ul>
                                 </div>
                             </li>
 
@@ -174,38 +180,40 @@
                                 <h6>Supervisor Logs</h6> 
                                 Supervisors should use this area to log counseling and oral reprimands.
                                 <br>
-                                <a class="waves-effect waves-teal btn-flat blue-text" v-show="this.isSupervisorFlag===1" href="http://apps.cityoflewisville.com/PSOFIA_v2/formentry/index.html?formID=88" target="_blank">New</a>
-                                &nbsp <span class="grey-text">|</span> &nbsp
-                                <a class="waves-effect waves-teal btn-flat blue-text" @click="formType='supervisor_logs'; getRecords('supervisor_logs')">View All</a>
+                                <a class="waves-effect waves-purple btn-flat deep-purple-text" v-show="isSupervisorFlag === 1" href="http://apps.cityoflewisville.com/PSOFIA_v2/formentry/index.html?formID=88" target="_blank">New&nbsp <span class="grey-text">|</span> &nbsp</a>
+                                <a class="waves-effect waves-purple btn-flat deep-purple-text" @click="formType='supervisor_logs'; getRecords('supervisor_logs')">View All</a>
                                 <br>
 
                                 <!--Records-->
-                                <div class="row record-container" v-show="records.length > 0 && formType == 'supervisor_logs'">
-                                    <div class="col s12" v-for="employee in employees">
-                                        <h6>{{employee.name}}</h6>
-                                        <div class="row black-text">
-                                            <div class="col s2">Date</div>
-                                            <div class="col s3">Type</div>
-											<div class="col s5">Narrative</div>
-                                            <div class="col s2"></div>
-                                        </div>
-                                        <div class="row grey-text" v-for="record in recordsPerEmployee(employee.id)">
-                                            <div class="col s2">{{formatDate(record.Incident_Date)}}</div>
-                                            <div class="col s3">{{record.Log_Entry_Type}}</div>
-											<div class="col s5">{{record.Log_Entry_Text}}</div>											
-                                            <div class="col s2" v-show="record.isSelf==0"><a :href="record.link" target="_blank">Open Form</a></div>
-                                        </div>
-                                    </div>
+                                <div class="col s12" id="collapsible_container" v-show="records.length > 0 && formType == 'supervisor_logs'">
+                                        <ul class="collapsible">
+                                                <li v-for="(employee, i) in employees" :id="employee.name.split(' ')[0].toLowerCase() + '_' + i" :key="i" >
+                                                  <div class="collapsible-header"> {{ employee.name }}<i class="small material-icons">chevron_right</i></div>
+                                                  <div class="collapsible-body">
+                                                        <div class="row black-text">
+                                                                <div class="col s2">Date</div>
+                                                                <div class="col s3">Type</div>
+                                                                <div class="col s5">Narrative</div>
+                                                                <div class="col s2"></div>
+                                                            </div>
+                                                            <div class="row grey-text" v-for="record in recordsPerEmployee(employee.id)">
+                                                                <div class="col s2">{{formatDate(record.Incident_Date)}}</div>
+                                                                <div class="col s3">{{record.Log_Entry_Type}}</div>
+                                                                <div class="col s5">{{record.Log_Entry_Text}}</div>											
+                                                                <div class="col s2" v-show="record.isSelf==0"><a :href="record.link" target="_blank">Open Form</a></div>
+                                                            </div>
+                                                  </div>
+                                                </li>
+                                              </ul>
                                 </div>
                             </li>
                         </ul>
-                    </p>
-                    <!--To do later-->
-                    <!--
-                    <div>
+                    </p>                   
+                    <!--@TODO: Waiting for HR Approval 
+                        <div>
                         <a class="waves-effect waves-light btn deep-purple white-text" id="Peer" v-on:click="LaunchURL()" >Submit Peer Recognition</a>
-                    </div>
-                    -->
+                    </div> -->
+                   
                 </div>
             </div>
 
@@ -245,7 +253,8 @@
                 selectedSubordinate: '',
                 formType: "",
                 username: "",
-                isSupervisorFlag: 0
+                isSupervisorFlag: 0,
+                viewAll: 'View All'
             },
             methods: {
                 init: function(){
@@ -360,7 +369,7 @@
                 } ,
                 LaunchURL: function(){
                     window.open("http://apps.cityoflewisville.com/PSOFIA_v2/formentry/index.html?formID=92",'_blank')
-                }                       
+                }                    
             },
             computed:{
                 formTypePretty: function(){
@@ -391,6 +400,9 @@
             }
         });
         document.addEventListener('DOMContentLoaded', function(){
+            var elems = document.querySelectorAll('.collapsible');
+            let options = document.querySelectorAll('div.collapsible-body')
+            var instances = M.Collapsible.init(elems, options);
             app.init()
         })
         
