@@ -192,14 +192,16 @@
                                                   <div class="collapsible-body">
                                                         <div class="row black-text">
                                                                 <div class="col s2">Date</div>
-                                                                <div class="col s3">Type</div>
-                                                                <div class="col s5">Narrative</div>
-                                                                <div class="col s2"></div>
+                                                                <div class="col s2">Type</div>
+                                                                <div class="col s4">Narrative</div>
+                                                                <div class="col s3">Submit By:</div>
+                                                                <div class="col s1"></div>
                                                             </div>
                                                             <div class="row grey-text" v-for="record in recordsPerEmployee(employee.id)">
                                                                 <div class="col s2">{{formatDate(record.Incident_Date)}}</div>
-                                                                <div class="col s3">{{record.Log_Entry_Type}}</div>
-                                                                <div class="col s5">{{record.Log_Entry_Text}}</div>											
+                                                                <div class="col s2">{{record.Log_Entry_Type}}</div>
+                                                                <div class="col s4">{{record.Log_Entry_Text}}</div>	
+                                                                <div class="col s2">{{record.SubmitBySupv}}</div>										
                                                                 <div class="col s2" v-show="record.isSelf==0"><a :href="record.link" target="_blank">Open Form</a></div>
                                                             </div>
                                                   </div>
